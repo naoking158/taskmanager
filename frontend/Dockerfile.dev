@@ -1,0 +1,18 @@
+FROM oven/bun:1 as base
+WORKDIR /app
+
+# インストールフェーズ
+FROM base AS install
+RUN mkdir -p /temp/dev
+COPY package.json bun.lockb /temp/dev/
+RUN cd /temp/dev && bun install --frozen-lockfile
+
+# 実行フェーズ
+FROM base
+COPY --from=install /temp/dev/node_modules /app/node_modules
+COPY . /app
+
+ENV HOST 0.0.0.0
+EXPOSE 3000
+
+CMD ["bun", "run", "dev", "--host", "0.0.0.0"]
