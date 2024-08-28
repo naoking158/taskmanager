@@ -1,0 +1,25 @@
+# for backend
+/backend/tmp
+/backend/*.exe
+/backend/*.exe~
+/backend/*.dll
+/backend/*.so
+/backend/*.dylib
+/backend/*.test
+/backend/*.out
+
+# for frontend
+/frontend/node_modules
+/frontend/.nuxt
+/frontend/dist
+
+# 環境変数
+.env
+
+# エディタ固有のファイル
+.vscode/
+.idea/
+
+# OS固有のファイル
+.DS_Store
+Thumbs.db
