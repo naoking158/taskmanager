@@ -50,7 +50,7 @@ services:
     ports:
       - "${FRONTEND_PORT}:${FRONTEND_PORT}"
     environment:
-      - API_URL=${API_URL}
+      - NUXT_PUBLIC_API_BASE=${NUXT_PUBLIC_API_BASE}
       - NITRO_HOST=0.0.0.0
       - NITRO_PORT=${FRONTEND_PORT}
     networks:

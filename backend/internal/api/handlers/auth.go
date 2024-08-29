@@ -114,13 +114,13 @@ func (h *AuthHandler) Login(c echo.Context) error {
 	}
 	err := h.DB.Get(&user, "SELECT id, password_hash FROM users WHERE username = $1", input.Username)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusNotFound, "ユーザーが見つかりません: ", err)
+		return echo.NewHTTPError(http.StatusNotFound, "User not found.")
 	}
 
 	// パスワードチェック
 	err = bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(input.Password))
 	if err != nil {
-		return echo.NewHTTPError(http.StatusUnauthorized, "無効なパスワードです")
+		return echo.NewHTTPError(http.StatusUnauthorized, "Invalid password.")
 	}
 
 	// JWT トークンを生成
