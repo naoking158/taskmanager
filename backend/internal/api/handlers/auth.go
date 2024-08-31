@@ -58,7 +58,7 @@ func (h *AuthHandler) Register(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, "ユーザー名の確認中にエラーが発生しました: ", err)
 	}
 	if count > 0 {
-		return echo.NewHTTPError(http.StatusConflict, "このユーザー名は既に使用されています")
+		return echo.NewHTTPError(http.StatusConflict, "username already exists")
 	}
 
 	// パスワードのハッシュ化

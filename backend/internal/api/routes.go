@@ -20,4 +20,9 @@ func SetupRoutes(e *echo.Echo, db *sqlx.DB) {
 	// 認証必要
 	authenticated := v1.Group("")
 	authenticated.Use(middleware.JWTMiddleware())
+	authenticated.Use(middleware.Auth)
+
+	workspaceHandler := handlers.NewWorkspaceHandler(db)
+	authenticated.GET("/workspaces", workspaceHandler.GetWorkspaces)
+	authenticated.POST("/workspaces", workspaceHandler.CreateWorkspace)
 }

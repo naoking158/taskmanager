@@ -1,6 +1,7 @@
 <template>
   <v-app>
     <Header />
+    
     <v-main>
       <v-container>
         <slot />
@@ -10,5 +11,5 @@
 </template>
 
 <script setup lang="ts">
-import Header from '@/composable/Layout/Header.vue'
+import Header from '@/components/Layout/Header.vue'
 </script>

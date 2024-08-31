@@ -26,7 +26,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useAPI } from '@/composables/useApi'
 import type { errorResponse } from '@/types'
@@ -35,6 +35,8 @@ const username = ref('')
 const password = ref('')
 const errorMessage = ref('')
 const authStore = useAuthStore()
+const router = useRouter()
+const headers = useRequestHeaders(['cookie'])
 
 const handleError = (e: errorResponse) => {
   if (e.message.includes('User not found')) {
@@ -52,17 +54,21 @@ const login = async () => {
       method: 'POST',
       body: { username: username.value, password: password.value },
     })
+    // const { data, error } = await useAPI('/auth/login', {
+    //   method: 'POST',
+    //   body: { username: username.value, password: password.value },
+    // })
 
     if (error?.value) {
       handleError(error.value.data)
       return
     }
     
-    authStore.setToken(data.token)
+    authStore.setToken(data.value)
     // トークンを使用してユーザー情報を取得する処理をここに追加
     
     // ログイン後のリダイレクト
-    navigateTo('/')
+    router.push('/')
   } catch (err) {
     console.error('Login failed:', err)
     errorMessage.value = '予期せぬエラーが発生しました。'

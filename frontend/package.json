@@ -6,6 +6,7 @@
     "auth-utils": "^1.0.0",
     "nuxt": "^3.13.0",
     "nuxt-auth-utils": "^0.3.5",
+    "pinia": "^2.2.2",
     "sass": "^1.77.8",
     "vue": "latest",
     "vuetify": "^3.7.1"
@@ -20,9 +21,11 @@
   },
   "type": "module",
   "devDependencies": {
-    "@vue/language-server": "^2.1.0",
-    "@vue/typescript-plugin": "^2.1.0",
+    "@pinia-plugin-persistedstate/nuxt": "^1.2.1",
+    "@vue/language-server": "^2.1.2",
+    "@vue/typescript-plugin": "^2.1.2",
     "emmet-ls": "^0.4.2",
+    "vite-plugin-vuetify": "^2.0.4",
     "vscode-langservers-extracted": "^4.10.0"
   }
 }

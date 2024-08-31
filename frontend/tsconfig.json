@@ -4,4 +4,9 @@
   "compilerOptions": {
     "moduleResolution" : "Node16",
   },
+  "include": [
+    "env.d.ts",
+    ".nuxt/nuxt.d.ts",
+    "**/*"
+  ],
 }

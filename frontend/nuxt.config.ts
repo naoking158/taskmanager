@@ -1,3 +1,5 @@
+import vuetify, { transformAssetUrls } from 'vite-plugin-vuetify'
+
 export default defineNuxtConfig({
   experimental: {
     writeEarlyHints: false,
@@ -14,7 +16,15 @@ export default defineNuxtConfig({
 
   modules: [
     '@pinia/nuxt',
-    'nuxt-auth-utils',
+    '@pinia-plugin-persistedstate/nuxt',
+    (_options, nuxt) => {
+      nuxt.hooks.hook('vite:extendConfig', (config) => {
+        // @ts-expect-error
+        config.plugins.push(vuetify({ autoImport: true }))
+      })
+    },
+    
+    // 'nuxt-auth-utils',
   ],
   
   build: {
@@ -28,6 +38,44 @@ export default defineNuxtConfig({
     optimizeDeps: {
       exclude: ['fsevents'],
     },
+    server: {
+      port: 3000,
+      strictPort: true,
+      hmr: {
+        protocol: "ws",
+        host: "localhost",
+        port: 24687,
+        clientPort: 3000,
+    },
+  },
+  },
+
+  vuetify: {
+    /* vuetify options */
+    vuetifyOptions: {
+      icons: {
+        defaultSet: 'mdi',
+      },
+    },
+    moduleOptions: {
+      /* nuxt-vuetify module options */
+      treeshaking: true,
+      useIconCDN: true,
+      /* vite-plugin-vuetify options */
+      styles: true,
+      autoImport: true,
+      // comment this line to check drawer behavior
+      ssrClientHints: {
+        viewportSize: true,
+      },
+    },
+  },
+
+  piniaPersistedstate: {
+    cookieOptions: {
+      sameSite: 'strict',
+    },
+    storage: 'cookies'
   },
 
   // vite: {

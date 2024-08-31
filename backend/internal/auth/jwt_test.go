@@ -43,7 +43,7 @@ func TestJwtCustomClaims(t *testing.T) {
 	claims := JwtCustomClaims{
 		UserID: "test-user-id",
 		RegisteredClaims: jwt.RegisteredClaims{
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour * 24)),
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour * 72)),
 		},
 	}
 

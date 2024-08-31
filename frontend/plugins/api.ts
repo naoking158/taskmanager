@@ -1,20 +1,26 @@
+import { $fetch } from 'ofetch'
+import type { NuxtApp } from "nuxt/app"
+import type { Pinia } from 'pinia'
+import { useAuthStore } from "@/stores/auth.js"
 
-export default defineNuxtPlugin((nuxtApp) => {
-  const { session } = useUserSession()
+export default defineNuxtPlugin((nuxtApp: NuxtApp) => {
   const config = useRuntimeConfig()
   const baseURL = config.public.apiBase
+  const authStore = useAuthStore(nuxtApp.$pinia as Pinia)
 
-  const api = $fetch.create({
+  const $api = $fetch.create({
     baseURL: baseURL,
+    cache: 'reload',
     onRequest({ request, options, error }) {
-      if (session.value?.token) {
+
+      if (authStore.token) {
         const headers = options.headers ||= {}
         if (Array.isArray(headers)) {
-          headers.push(['Authorization', `Bearer ${session.value?.token}`])
+          headers.push(['Authorization', `Bearer ${authStore.token}`]) 
         } else if (headers instanceof Headers) {
-          headers.set('Authorization', `Bearer ${session.value?.token}`)
+          headers.set('Authorization', `Bearer ${authStore.token}`)
         } else {
-          headers.Authorization = `Bearer ${session.value?.token}`
+          headers.Authorization = `Bearer ${authStore.token}`
         }
       }
     },
@@ -28,7 +34,7 @@ export default defineNuxtPlugin((nuxtApp) => {
   // Expose to useNuxtApp().$api
   return {
     provide: {
-      api
+      api: $api,
     }
   }
 })
