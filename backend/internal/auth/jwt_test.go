@@ -32,11 +32,11 @@ func TestGenerateToken(t *testing.T) {
 
 	assert.NoError(t, err)
 	assert.True(t, parsedToken.Valid)
-	
+
 	// クレームの内容を確認
 	claims, ok := parsedToken.Claims.(jwt.MapClaims)
 	assert.True(t, ok)
-	assert.Equal(t, userID, claims["user_id"])	
+	assert.Equal(t, userID, claims["user_id"])
 }
 
 func TestJwtCustomClaims(t *testing.T) {

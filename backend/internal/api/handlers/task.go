@@ -127,7 +127,6 @@ func (h *TaskHandler) CreateTask(c echo.Context) error {
 	return c.JSON(http.StatusCreated, task)
 }
 
-
 func (h *TaskHandler) EditTask(c echo.Context) error {
 	workspaceID, err := uuid.Parse(c.Param("workspaceID"))
 	if err != nil {
@@ -135,7 +134,7 @@ func (h *TaskHandler) EditTask(c echo.Context) error {
 	}
 
 	var input struct {
-		ID uuid.UUID `json:"id" validate:"required"`
+		ID          uuid.UUID         `json:"id" validate:"required"`
 		Title       string            `json:"title" validate:"required"`
 		Description string            `json:"description"`
 		Status      models.TaskStatus `json:"status" validate:"required"`
@@ -159,7 +158,6 @@ func (h *TaskHandler) EditTask(c echo.Context) error {
 	if err != nil {
 		return echo.NewHTTPError(http.StatusUnauthorized, "Invalid user ID")
 	}
-
 
 	var assignedTo *uuid.UUID
 	if input.AssignedTo != "" {

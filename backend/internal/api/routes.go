@@ -33,7 +33,7 @@ func SetupRoutes(e *echo.Echo, db *sqlx.DB) {
 
 	commentHandler := handlers.NewCommentHandler(db)
 	authenticated.POST("/tasks/:taskID/comments", commentHandler.CreateComment)
-  authenticated.GET("/tasks/:taskID/comments", commentHandler.GetCommentsByTaskID)
-  authenticated.PUT("/comments/:commentID", commentHandler.UpdateComment)
-  authenticated.DELETE("/comments/:commentID", commentHandler.DeleteComment)
+	authenticated.GET("/tasks/:taskID/comments", commentHandler.GetCommentsByTaskID)
+	authenticated.PUT("/comments/:commentID", commentHandler.UpdateComment)
+	authenticated.DELETE("/comments/:commentID", commentHandler.DeleteComment)
 }

@@ -19,7 +19,7 @@ func NewDatabase() (*sqlx.DB, error) {
 
 	db, err := sqlx.Connect("postgres", connectionString)
 	if err != nil {
-	  return nil, fmt.Errorf("データベース接続に失敗しました: %v", err)
+		return nil, fmt.Errorf("データベース接続に失敗しました: %v", err)
 	}
 
 	// コネクションプールの設定

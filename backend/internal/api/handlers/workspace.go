@@ -11,7 +11,7 @@ import (
 )
 
 type WorkspaceHandler struct {
-	DB       (*sqlx.DB)
+	DB (*sqlx.DB)
 }
 
 func NewWorkspaceHandler(db *sqlx.DB) *WorkspaceHandler {
@@ -32,7 +32,7 @@ func (h *WorkspaceHandler) GetWorkspaces(c echo.Context) error {
 	if len(workspaces) == 0 {
 		log.Printf("No workspaces found")
 	}
-	
+
 	return c.JSON(http.StatusOK, workspaces)
 }
 

@@ -11,7 +11,7 @@ import (
 )
 
 type CommentHandler struct {
-	DB       (*sqlx.DB)
+	DB (*sqlx.DB)
 }
 
 func NewCommentHandler(db *sqlx.DB) *CommentHandler {
