@@ -13,6 +13,7 @@ import (
 
 type AuthHandler struct {
 	DB (*sqlx.DB)
+	sq (*sq.StatementBuilderType)
 }
 
 type RegisterInput struct {
@@ -26,8 +27,8 @@ type LoginInput struct {
 	Password string `json:"password" validate:"required"`
 }
 
-func NewAuthHandler(db *sqlx.DB) *AuthHandler {
-	return &AuthHandler{DB: db}
+func NewAuthHandler(db *sqlx.DB, sq *sq.StatementBuilderType) *AuthHandler {
+	return &AuthHandler{DB: db, sq: sq}
 }
 
 func (h *AuthHandler) Register(c echo.Context) error {
@@ -50,16 +51,16 @@ func (h *AuthHandler) Register(c echo.Context) error {
 	// ユーザー名の重複チェック
 	var count int
 
-	sql, args, err := sq.
+	sql, args, err := h.sq.
 		Select("COUNT(username)").
 		From("users").
 		Where(sq.Eq{"username": input.Username}).
 		ToSql()
 	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, "failed to ToSql: %v", err)
+		return echo.NewHTTPError(http.StatusInternalServerError, "failed to ToSql for Register: %v", err)
 	}
 
-	err = tx.Get(&count, sql, args)
+	err = tx.Get(&count, sql, args...)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, "ユーザー名の確認中にエラーが発生しました: ", err)
 	}
@@ -87,13 +88,16 @@ func (h *AuthHandler) Register(c echo.Context) error {
 	}
 
 	// ユーザーをデータベースに挿入
-	sql, args, err = sq.
+	sql, args, err = h.sq.
 		Insert("users").
 		Columns("id", "username", "password_hash", "display_name").
 		Values(newUser.ID, newUser.Username, newUser.PasswordHash, newUser.DisplayName).
 		ToSql()
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, "failed to ToSql for Register: %v", err)
+	}
 
-	_, err = tx.Exec(sql, args)
+	_, err = tx.Exec(sql, args...)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, "ユーザーの作成に失敗しました: ", err)
 	}

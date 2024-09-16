@@ -13,10 +13,11 @@ import (
 
 type WorkspaceHandler struct {
 	DB (*sqlx.DB)
+	sq (*sq.StatementBuilderType)
 }
 
-func NewWorkspaceHandler(db *sqlx.DB) *WorkspaceHandler {
-	return &WorkspaceHandler{DB: db}
+func NewWorkspaceHandler(db *sqlx.DB, sq *sq.StatementBuilderType) *WorkspaceHandler {
+	return &WorkspaceHandler{DB: db, sq: sq}
 }
 
 func (h *WorkspaceHandler) GetWorkspaces(c echo.Context) error {
@@ -25,7 +26,7 @@ func (h *WorkspaceHandler) GetWorkspaces(c echo.Context) error {
 		Description string `db:"description" json:"description"`
 	}
 
-	sql, _, err := sq.Select("name", "description").From("workspaces").ToSql()
+	sql, _, err := h.sq.Select("name", "description").From("workspaces").ToSql()
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, "failed to ToSQL for workspaces: %v", err)
 	}
@@ -62,7 +63,7 @@ func (h *WorkspaceHandler) CreateWorkspace(c echo.Context) error {
 		Description: input.Description,
 	}
 
-	sql, args, err := sq.
+	sql, args, err := h.sq.
 		Insert("workspaces").
 		Columns("id", "name", "description").
 		Values(workspace.ID, workspace.Name, workspace.Description).
@@ -71,7 +72,7 @@ func (h *WorkspaceHandler) CreateWorkspace(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, "failed to ToSQL for create Workspace: %v", err)
 	}
 
-	if _, err = h.DB.Exec(sql, args); err != nil {
+	if _, err = h.DB.Exec(sql, args...); err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to create workspace")
 	}
 

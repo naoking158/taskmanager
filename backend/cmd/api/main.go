@@ -4,6 +4,7 @@ import (
 	"log"
 	"os"
 
+	"github.com/Masterminds/squirrel"
 	"github.com/go-playground/validator/v10"
 	"github.com/joho/godotenv"
 	"github.com/labstack/echo/v4"
@@ -41,7 +42,8 @@ func main() {
 	}))
 	e.Validator = &Validator{validator: validator.New()}
 
-	api.SetupRoutes(e, db)
+	psql := squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar)
+	api.SetupRoutes(e, db, &psql)
 
 	port := os.Getenv("BACKEND_PORT")
 	if port == "" {
