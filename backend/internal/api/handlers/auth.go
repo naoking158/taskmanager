@@ -3,6 +3,7 @@ package handlers
 import (
 	"net/http"
 
+	sq "github.com/Masterminds/squirrel"
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
 	"github.com/labstack/echo/v4"
@@ -48,7 +49,17 @@ func (h *AuthHandler) Register(c echo.Context) error {
 
 	// ユーザー名の重複チェック
 	var count int
-	err = tx.Get(&count, "SELECT COUNT(username) FROM users WHERE username = $1", input.Username)
+
+	sql, args, err := sq.
+		Select("COUNT(username)").
+		From("users").
+		Where(sq.Eq{"username": input.Username}).
+		ToSql()
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, "failed to ToSql: %v", err)
+	}
+
+	err = tx.Get(&count, sql, args)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, "ユーザー名の確認中にエラーが発生しました: ", err)
 	}
@@ -76,10 +87,13 @@ func (h *AuthHandler) Register(c echo.Context) error {
 	}
 
 	// ユーザーをデータベースに挿入
-	_, err = tx.NamedExec(`
-													INSERT INTO users (id, username, password_hash, display_name)
-													VALUES (:id, :username, :password_hash, :display_name)
-													`, newUser)
+	sql, args, err = sq.
+		Insert("users").
+		Columns("id", "username", "password_hash", "display_name").
+		Values(newUser.ID, newUser.Username, newUser.PasswordHash, newUser.DisplayName).
+		ToSql()
+
+	_, err = tx.Exec(sql, args)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, "ユーザーの作成に失敗しました: ", err)
 	}
