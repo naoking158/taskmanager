@@ -22,11 +22,12 @@ func NewWorkspaceHandler(db *sqlx.DB, sq *sq.StatementBuilderType) *WorkspaceHan
 
 func (h *WorkspaceHandler) GetWorkspaces(c echo.Context) error {
 	var workspaces []struct {
+		ID string `db:"id" json:"id"`
 		Name        string `db:"name" json:"name"`
 		Description string `db:"description" json:"description"`
 	}
 
-	sql, _, err := h.sq.Select("name", "description").From("workspaces").ToSql()
+	sql, _, err := h.sq.Select("id", "name", "description").From("workspaces").ToSql()
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, "failed to ToSQL for workspaces: %v", err)
 	}

@@ -5,6 +5,7 @@ export type errorResponse = {
 export type Workspace = {
   id: string;
   name: string;
+  description: string;
 }
 
 type taskStatus = 'TODO' | 'In Progress' | 'DONE' | 'On Hold'

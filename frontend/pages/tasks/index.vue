@@ -9,6 +9,7 @@
 </template>
 
 <script setup>
+import { onMounted, watch } from 'vue'
 import { storeToRefs } from 'pinia'
 
 import TaskList from '@/components/Task/TaskList.vue'
@@ -18,5 +19,17 @@ import { useWorkspaceStore } from '@/stores/workspace'
 const workspaceStore = useWorkspaceStore()
 const { currentWorkspace } = storeToRefs(workspaceStore)
 
-const { data: tasks } = await useTasks(currentWorkspace)
+const { data: tasks, refresh } = useTasks(currentWorkspace, { immediate: false })
+
+watch(currentWorkspace, async () => {
+  if (currentWorkspace.value?.id) {
+    await refresh()
+  }
+})
+
+onMounted(async () => {
+  if (currentWorkspace.value?.id) {
+    await refresh()
+  }
+})
 </script>

@@ -62,6 +62,21 @@ import { useAPI } from '@/composables/useApi'
 const workspaceStore = useWorkspaceStore()
 const { workspaces, currentWorkspace } = storeToRefs(workspaceStore)
 
+const { data, refresh } = useAPI('/workspaces',{
+  server: false,
+  immediate: false,
+})
+
+const refreshWorkspaces = async () => {
+  await refresh()
+
+  workspaceStore.setWorkspaces(data.value ?? [])
+  
+  if (workspaces.length > 0 && !currentWorkspace.value) {
+    workspaceStore.setCurrentWorkspace(workspaces.value[0])
+  }
+}
+
 const currentWorkspaceName = computed(() => currentWorkspace.value.name || 'Select Workspace')
 
 const dialog = ref(false)
@@ -86,8 +101,7 @@ const createWorkspace = async () => {
         description: newWorkspaceDescription.value
       }
     })
-    // workspaceStore.addWorkspace(data)
-    fetchWorkspaces()
+    refreshWorkspaces()
     dialog.value = false
     newWorkspaceName.value = ''
     newWorkspaceDescription.value = ''
@@ -98,27 +112,8 @@ const createWorkspace = async () => {
   }
 }
 
-async function fetchWorkspaces() {
-  const { data, error } = await useAPI('/workspaces',{
-    server: false,
-  })
-  if (error?.value) {
-    console.log('Failed to fetch workspaces: ', error.value)
-  }
-
-  if (data.value == null) {
-    workspaceStore.workspaces.value = []
-  } else {
-    workspaceStore.workspaces.value = data.value
-  }
-
-  if (workspaceStore.workspaces.value.length > 0 && !workspaceStore.currentWorkspace.value) {
-    workspaceStore.currentWorkspace.value = workspaceStore.workspaces.value[0]
-  }
-}
-
 // コンポーネントがマウントされたときにワークスペースを取得
 onMounted(async () => {
-  await fetchWorkspaces()
+  refreshWorkspaces()
 })
 </script>

@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
-import { Workspace } from '~/types'
-
+import { Workspace } from '@/types'
+import { useAPI } from '@/composables/useApi'
 
 export const useWorkspaceStore = defineStore(
   'workspace',
@@ -12,6 +12,10 @@ export const useWorkspaceStore = defineStore(
       currentWorkspace.value = workspace
     }
 
+    function setWorkspaces(fetchedWorkspaces: Workspace[]) {
+      workspaces.value = fetchedWorkspaces
+    }
+
     function addWorkspace(workspace: Workspace) {
       workspaces.value.push(workspace.value)
       if (!currentWorkspace.value) {
@@ -19,7 +23,7 @@ export const useWorkspaceStore = defineStore(
       }
     }
 
-    return { workspaces, currentWorkspace, setCurrentWorkspace, addWorkspace }
+    return { workspaces, currentWorkspace, setCurrentWorkspace, addWorkspace, setWorkspaces }
   },
   {
     persist: true,
