@@ -4,6 +4,7 @@ import (
 	"log"
 	"net/http"
 
+	sq "github.com/Masterminds/squirrel"
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
 	"github.com/labstack/echo/v4"
@@ -24,7 +25,12 @@ func (h *WorkspaceHandler) GetWorkspaces(c echo.Context) error {
 		Description string `db:"description" json:"description"`
 	}
 
-	err := h.DB.Select(&workspaces, "SELECT name, description FROM workspaces")
+	sql, _, err := sq.Select("name", "description").From("workspaces").ToSql()
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, "failed to ToSQL for workspaces: %v", err)
+	}
+
+	err = h.DB.Select(&workspaces, sql)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to fetch workspaces")
 	}
@@ -56,11 +62,16 @@ func (h *WorkspaceHandler) CreateWorkspace(c echo.Context) error {
 		Description: input.Description,
 	}
 
-	_, err := h.DB.NamedExec(`
-        INSERT INTO workspaces (id, name, description)
-        VALUES (:id, :name, :description)
-    `, workspace)
+	sql, args, err := sq.
+		Insert("workspaces").
+		Columns("id", "name", "description").
+		Values(workspace.ID, workspace.Name, workspace.Description).
+		ToSql()
 	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, "failed to ToSQL for create Workspace: %v", err)
+	}
+
+	if _, err = h.DB.Exec(sql, args); err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to create workspace")
 	}
 
