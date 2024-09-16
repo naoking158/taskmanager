@@ -3,7 +3,7 @@ CREATE TABLE tasks (
     workspace_id UUID NOT NULL,
     title VARCHAR(200) NOT NULL,
     description TEXT,
-    status VARCHAR(20) NOT NULL,
+    status VARCHAR(20) NOT NULL CHECK (status IN ('TODO', 'In Progress', 'DONE', 'On Hold')),
     created_by UUID NOT NULL,
     assigned_to UUID,
     parent_task_id UUID,

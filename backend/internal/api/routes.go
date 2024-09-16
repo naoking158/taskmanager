@@ -13,7 +13,7 @@ func SetupRoutes(e *echo.Echo, db *sqlx.DB) {
 	v1 := e.Group("/api/v1")
 
 	// 認証不要
-	auth:= v1.Group("/auth")
+	auth := v1.Group("/auth")
 	auth.POST("/register", authHandler.Register)
 	auth.POST("/login", authHandler.Login)
 
@@ -25,4 +25,15 @@ func SetupRoutes(e *echo.Echo, db *sqlx.DB) {
 	workspaceHandler := handlers.NewWorkspaceHandler(db)
 	authenticated.GET("/workspaces", workspaceHandler.GetWorkspaces)
 	authenticated.POST("/workspaces", workspaceHandler.CreateWorkspace)
+
+	taskHandler := handlers.NewTaskHandler(db)
+	authenticated.GET("/workspaces/:workspaceID/tasks", taskHandler.GetTaskAll)
+	authenticated.POST("/workspaces/:workspaceID/tasks", taskHandler.CreateTask)
+	authenticated.GET("/tasks/:taskID", taskHandler.GetTask)
+
+	commentHandler := handlers.NewCommentHandler(db)
+	authenticated.POST("/tasks/:taskID/comments", commentHandler.CreateComment)
+  authenticated.GET("/tasks/:taskID/comments", commentHandler.GetCommentsByTaskID)
+  authenticated.PUT("/comments/:commentID", commentHandler.UpdateComment)
+  authenticated.DELETE("/comments/:commentID", commentHandler.DeleteComment)
 }

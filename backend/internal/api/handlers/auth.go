@@ -3,7 +3,6 @@ package handlers
 import (
 	"net/http"
 
-	"github.com/go-playground/validator/v10"
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
 	"github.com/labstack/echo/v4"
@@ -12,8 +11,7 @@ import (
 )
 
 type AuthHandler struct {
-	DB       (*sqlx.DB)
-	Validate (*validator.Validate)
+	DB (*sqlx.DB)
 }
 
 type RegisterInput struct {
@@ -28,10 +26,7 @@ type LoginInput struct {
 }
 
 func NewAuthHandler(db *sqlx.DB) *AuthHandler {
-	return &AuthHandler{
-		DB:       db,
-		Validate: validator.New(),
-	}
+	return &AuthHandler{DB: db}
 }
 
 func (h *AuthHandler) Register(c echo.Context) error {
@@ -40,7 +35,7 @@ func (h *AuthHandler) Register(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, "無効な入力です", err)
 	}
 
-	if err := h.Validate.Struct(input); err != nil {
+	if err := c.Validate(input); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
 
@@ -103,7 +98,7 @@ func (h *AuthHandler) Login(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, "無効な入力です: ", err)
 	}
 
-	if err := h.Validate.Struct(input); err != nil {
+	if err := c.Validate(input); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
 

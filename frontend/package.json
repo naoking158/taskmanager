@@ -22,10 +22,6 @@
   "type": "module",
   "devDependencies": {
     "@pinia-plugin-persistedstate/nuxt": "^1.2.1",
-    "@vue/language-server": "^2.1.2",
-    "@vue/typescript-plugin": "^2.1.2",
-    "emmet-ls": "^0.4.2",
-    "vite-plugin-vuetify": "^2.0.4",
-    "vscode-langservers-extracted": "^4.10.0"
+    "vite-plugin-vuetify": "^2.0.4"
   }
 }

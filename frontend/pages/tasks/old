@@ -1,0 +1,210 @@
+<template>
+  <v-container>
+    <template v-if="isLoading">
+      Loading...
+    </template>
+    
+    <template v-else>
+      <template v-if="task != undefined">
+        <v-row>
+          <v-col cols="12">
+            <v-card>
+              <v-card-title>
+                <h1 class="text-h4">{{ task.title }}</h1>
+                <v-chip :color="getStatusColor(task.status)" class="ml-2">
+                  {{ task.status }}
+                </v-chip>
+              </v-card-title>
+              <v-card-text>
+                <p>{{ task.description }}</p>
+                <v-row>
+                  <v-col cols="6">
+                    <p><strong>Due Date:</strong> {{ formatDate(task.due_date) }}</p>
+                  </v-col>
+                  <v-col cols="6">
+                    <p><strong>Assigned To:</strong> {{ task.assigned_to || 'Unassigned' }}</p>
+                  </v-col>
+                </v-row>
+              </v-card-text>
+            </v-card>
+          </v-col>
+
+          <v-col cols="12" class="mt-4">
+            <h2 class="text-h5 mb-2">Comments</h2>
+            <template v-if="comments != undefined">
+              <v-card v-for="comment in comments" :key="comment.id">
+                <v-card-text>
+                  {{ comment.content }}
+                  Posted by: {{ comment.user_id }} on {{ formatDate(comment.created_at) }}
+                </v-card-text>
+                <!-- <v-list>
+                     <v-list-item v-for="comment in comments" :key="comment.id">
+                     {{ comment.content }}
+                     <v-list-item-subtitle>
+                     Posted by: {{ comment.user_id }} on {{ formatDate(comment.created_at) }}
+                     </v-list-item-subtitle>
+                     </v-list-item>
+                     </v-list> -->
+                
+              </v-card>
+            </template>
+
+            <template v-else>
+              No comments yet.
+            </template>
+          </v-col>
+
+          <v-col cols="12" class="mt-4">
+            <v-form @submit.prevent="addComment">
+              <v-textarea
+                v-model="newComment"
+                label="Add a comment"
+                outlined
+              ></v-textarea>
+              <v-btn type="submit" color="primary" :disabled="!newComment.trim()">
+                Add Comment
+              </v-btn>
+            </v-form>
+          </v-col>
+        </v-row>
+      </template>
+      
+      <template v-else>
+        <v-row>
+          <v-col cols="12">
+            <v-alert type="error">Task not found</v-alert>
+          </v-col>
+        </v-row>
+      </template>
+    </template>
+  </v-container>
+</template>
+
+<script setup lang="ts">
+import { ref, onMounted } from 'vue'
+import { useRoute } from 'vue-router'
+import { useAPI } from '@/composables/useApi'
+import type { Task, Comment } from '@/types'
+
+const route = useRoute()
+
+const task = ref<Task>()
+const comments = ref<Comment[]>()
+
+const task_status = ref('idle')
+const comments_status = ref('idle')
+
+const newComment = ref('')
+
+const isLoading = computed(() => {
+  return (
+    task_status.value == 'pending' ||
+    task_status.value == 'idle' ||
+    comments_status.value == 'pending' ||
+    comments_status.value == 'idle')  
+})
+
+// const { $api } = useNuxtApp()
+
+// const { data: comments, error: comments_error, status: comments_status } = await useAsyncData(
+//   'comments',
+//   () => $api(`/tasks/${route.params.id}/comments`),
+//   {
+//     lazy: true,
+//     sever: false,
+// })
+// 
+// const { data: task, error: task_error, status: task_status } = await useAsyncData(
+//   'task',
+//   () => $api(`/tasks/${route.params.id}`),
+//   {
+//     lazy: true,
+//     sever: false,
+// })
+
+
+
+// const { data: comments, error: comments_error, pending: task_pending } = useAPI(`/tasks/${route.params.id}/comments`, {
+//   lazy: false,
+//   sever: false,
+//   immediate: true,
+// })
+// const { data: task, error: task_error, pending: comments_pending } = useAPI(`/tasks/${route.params.id}`, {
+//   lazy: false,
+//   sever: false,
+//   immediate: true,
+// })
+
+function isTask(t: any): boolean {
+  return 
+}
+
+const fetchTask = async () => {
+  task_status.value = 'pending'
+  
+  await nextTick()
+  const { data, status, error } = await useAPI(`/tasks/${route.params.id}`, {
+    cache: false,
+    timeout: 500,
+  })
+  task_status.value = status.value
+  if (error?.value) { 
+    console.error('Failed to fetch task:', error.value)
+    return
+  }
+
+  // if (data.value && data.value is Task) {
+  //   task.value = data.value
+  // }  
+}
+
+const fetchComments = async () => {
+  comments_status.value = 'pending'
+  await nextTick()
+  const { data, status, error} = await useAPI(`/tasks/${route.params.id}/comments`, {
+    cache: false,
+    timeout: 500,
+  })
+  comments_status.value = status.value
+  
+  if (error?.value) {
+    console.error('Failed to fetch comments:', error.value)
+    comments.value = []
+    return
+  }
+  
+  comments.value = Array.isArray(data) ? data.value : []
+}
+
+const addComment = async () => {
+  try {
+    const { data } = await useAPI(`/tasks/${route.params.id}/comments`, {
+      method: 'POST',
+      body: { content: newComment.value }
+    })
+    comments.value.unshift(data.value)
+    newComment.value = ''
+  } catch (error) {
+    console.error('Failed to add comment:', error)
+  }
+}
+
+const getStatusColor = (status: string) => {
+  switch (status) {
+    case 'TODO': return 'blue'
+    case 'In Progress': return 'orange'
+    case 'DONE': return 'green'
+    case 'On Hold': return 'grey'
+    default: return 'black'
+  }
+}
+
+const formatDate = (dateString: string) => {
+  return new Date(dateString).toLocaleDateString()
+}
+
+onMounted(async () => {
+  await fetchTask()
+  await fetchComments()
+})
+</script>

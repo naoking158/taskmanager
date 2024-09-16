@@ -54,21 +54,23 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
+import { storeToRefs } from 'pinia'
 import { useWorkspaceStore } from '@/stores/workspace'
-import type { Workspace } from '@/types';
+import type { Workspace } from '@/types'
 import { useAPI } from '@/composables/useApi'
 
 const workspaceStore = useWorkspaceStore()
+const { workspaces, currentWorkspace } = storeToRefs(workspaceStore)
 
-const workspaces = computed(() => workspaceStore.workspaces)
-const currentWorkspaceName = computed(() => workspaceStore.currentWorkspace?.name || 'Select Workspace')
+const currentWorkspaceName = computed(() => currentWorkspace.value.name || 'Select Workspace')
 
 const dialog = ref(false)
 const newWorkspaceName = ref('')
 const newWorkspaceDescription = ref('')
 
-const switchWorkspace = (workspace: Workspace) => {
-  workspaceStore.setCurrentWorkspace(workspace)
+const switchWorkspace = async (workspace: Workspace) => {
+  await workspaceStore.setCurrentWorkspace(workspace)
+  navigateTo('/tasks')
 }
 
 const showCreateWorkspaceDialog = () => {
@@ -84,35 +86,25 @@ const createWorkspace = async () => {
         description: newWorkspaceDescription.value
       }
     })
-    workspaceStore.addWorkspace(data)
+    // workspaceStore.addWorkspace(data)
+    fetchWorkspaces()
     dialog.value = false
     newWorkspaceName.value = ''
     newWorkspaceDescription.value = ''
 
-    navigateTo('/')
   } catch (error) {
     console.error('Failed to create workspace:', error)
     // エラー処理を追加（例：エラーメッセージの表示）
   }
 }
 
-const nuxtApp = useNuxtApp()
-
 async function fetchWorkspaces() {
-  const { data, error } = await useAPI(
-    '/workspaces',
-    {
-      getCachedData(key: string) {
-        return nuxtApp.payload.data[key] || nuxtApp.static.data[key]
-      },
-    },
-  )
+  const { data, error } = await useAPI('/workspaces',{
+    server: false,
+  })
   if (error?.value) {
     console.log('Failed to fetch workspaces: ', error.value)
   }
-
-  console.log(data.value)
-  console.log(error.value)
 
   if (data.value == null) {
     workspaceStore.workspaces.value = []
@@ -123,14 +115,10 @@ async function fetchWorkspaces() {
   if (workspaceStore.workspaces.value.length > 0 && !workspaceStore.currentWorkspace.value) {
     workspaceStore.currentWorkspace.value = workspaceStore.workspaces.value[0]
   }
-
-  console.log(workspaceStore.workspaces.value)
-  console.log(workspaceStore.currentWorkspace.value)
 }
 
 // コンポーネントがマウントされたときにワークスペースを取得
 onMounted(async () => {
   await fetchWorkspaces()
-  // workspaceStore.fetchWorkspaces()
 })
 </script>

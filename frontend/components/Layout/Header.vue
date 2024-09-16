@@ -10,28 +10,28 @@
   </v-app-bar>
 
   <ClientOnly>
-  <v-navigation-drawer v-model="drawer" app temporary>
-    <v-list>
-      <v-list-item to="/" link>
-        <template v-slot:prepend>
-          <v-icon>mdi-home</v-icon>
-        </template>
-        <v-list-item-title>Home</v-list-item-title>
-      </v-list-item>
-      <v-list-item to="/tasks" link>
-        <template v-slot:prepend>
-          <v-icon>mdi-format-list-bulleted</v-icon>
-        </template>
-        <v-list-item-title>Tasks</v-list-item-title>
-      </v-list-item>
-      <v-list-item v-if="authStore.token">
-        <template v-slot:prepend>
-          <v-icon>mdi-account</v-icon>
-        </template>
-        <v-list-item-title>TODO: show user name</v-list-item-title>
-      </v-list-item>
-    </v-list>
-  </v-navigation-drawer>
+    <v-navigation-drawer v-model="drawer" app temporary>
+      <v-list>
+        <v-list-item to="/" link>
+          <template v-slot:prepend>
+            <v-icon>mdi-home</v-icon>
+          </template>
+          <v-list-item-title>Home</v-list-item-title>
+        </v-list-item>
+        <v-list-item to="/tasks" link>
+          <template v-slot:prepend>
+            <v-icon>mdi-format-list-bulleted</v-icon>
+          </template>
+          <v-list-item-title>Tasks</v-list-item-title>
+        </v-list-item>
+        <v-list-item v-if="authStore.token">
+          <template v-slot:prepend>
+            <v-icon>mdi-account</v-icon>
+          </template>
+          <v-list-item-title>TODO: show user name</v-list-item-title>
+        </v-list-item>
+      </v-list>
+    </v-navigation-drawer>
   </ClientOnly>
   
 </template>

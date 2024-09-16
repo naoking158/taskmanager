@@ -4,7 +4,6 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/go-playground/validator/v10"
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
 	"github.com/labstack/echo/v4"
@@ -12,15 +11,11 @@ import (
 )
 
 type WorkspaceHandler struct {
-	DB       *sqlx.DB
-	Validate (*validator.Validate)
+	DB       (*sqlx.DB)
 }
 
 func NewWorkspaceHandler(db *sqlx.DB) *WorkspaceHandler {
-	return &WorkspaceHandler{
-		DB: db,
-		Validate: validator.New(),
-	}
+	return &WorkspaceHandler{DB: db}
 }
 
 func (h *WorkspaceHandler) GetWorkspaces(c echo.Context) error {
@@ -51,10 +46,10 @@ func (h *WorkspaceHandler) CreateWorkspace(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
-	if err := h.Validate.Struct(input); err != nil {
+	if err := c.Validate(input); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
-		
+
 	workspace := models.Workspace{
 		ID:          uuid.New(),
 		Name:        input.Name,
