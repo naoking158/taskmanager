@@ -17,9 +17,9 @@ type AuthHandler struct {
 }
 
 type RegisterInput struct {
-	Username    string `json:"username" validate:"required,min=3,max=50"`
+	Username    string `json:"username" validate:"required,min=1,max=50"`
 	Password    string `json:"password" validate:"required,min=8"`
-	DisplayName string `json:"display_name" validate:"max=100"`
+	DisplayName string `json:"display_name" validate:"max=50"`
 }
 
 type LoginInput struct {

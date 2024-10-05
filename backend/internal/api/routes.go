@@ -23,9 +23,13 @@ func SetupRoutes(e *echo.Echo, db *sqlx.DB, sq *squirrel.StatementBuilderType) {
 	authenticated.Use(middleware.JWTMiddleware())
 	authenticated.Use(middleware.Auth)
 
+	userHandler := handlers.NewUserHandler(db, sq)
+	authenticated.GET("/me", userHandler.GetUserByID)
+
 	workspaceHandler := handlers.NewWorkspaceHandler(db, sq)
 	authenticated.GET("/workspaces", workspaceHandler.GetWorkspaces)
 	authenticated.POST("/workspaces", workspaceHandler.CreateWorkspace)
+	authenticated.DELETE("/workspaces/:workspaceID", workspaceHandler.DeleteWorkspace)
 
 	taskHandler := handlers.NewTaskHandler(db, sq)
 	authenticated.GET("/workspaces/:workspaceID/tasks", taskHandler.GetTaskAll)

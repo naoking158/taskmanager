@@ -22,7 +22,7 @@ func NewWorkspaceHandler(db *sqlx.DB, sq *sq.StatementBuilderType) *WorkspaceHan
 
 func (h *WorkspaceHandler) GetWorkspaces(c echo.Context) error {
 	var workspaces []struct {
-		ID string `db:"id" json:"id"`
+		ID          string `db:"id" json:"id"`
 		Name        string `db:"name" json:"name"`
 		Description string `db:"description" json:"description"`
 	}
@@ -78,4 +78,22 @@ func (h *WorkspaceHandler) CreateWorkspace(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusCreated, workspace)
+}
+
+func (h *WorkspaceHandler) DeleteWorkspace(c echo.Context) error {
+	workspaceID := c.Param("workspaceID")
+	if workspaceID == "" {
+		return echo.NewHTTPError(http.StatusBadGateway, "Invalid endpoint")
+	}
+
+	sql, args, err := h.sq.Delete("workspaces").Where(sq.Eq{"id": workspaceID}).ToSql()
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, "failed to ToSql for DeleteWorkspace: %v", err)
+	}
+
+	if _, err = h.DB.Exec(sql, args...); err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, "failed to delete workspace: %v", err)
+	}
+
+	return c.JSON(http.StatusNoContent, nil)
 }

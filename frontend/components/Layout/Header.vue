@@ -24,11 +24,11 @@
           </template>
           <v-list-item-title>Tasks</v-list-item-title>
         </v-list-item>
-        <v-list-item v-if="authStore.token">
+        <v-list-item v-if="authStore.token" to="/users" link>
           <template v-slot:prepend>
             <v-icon>mdi-account</v-icon>
           </template>
-          <v-list-item-title>TODO: show user name</v-list-item-title>
+          <v-list-item-title>Preference</v-list-item-title>
         </v-list-item>
       </v-list>
     </v-navigation-drawer>
